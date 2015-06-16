@@ -694,6 +694,30 @@ NSString * const KILabelLinkKey = @"link";
     [super touchesCancelled:touches withEvent:event];
     
     // Make sure we don't leave a selection when the touch is cancelled
+    // self.selectedRange = NSMakeRange(0, 0);
+
+    // If the user dragged their finger we ignore the touch
+    if (_isTouchMoved)
+    {
+        self.selectedRange = NSMakeRange(0, 0);
+        
+        return;
+    }
+    
+    // Get the info for the touched link if there is one
+    NSDictionary *touchedLink;
+    CGPoint touchLocation = [[touches anyObject] locationInView:self];
+    touchedLink = [self linkAtPoint:touchLocation];
+    
+    if (touchedLink)
+    {
+        NSRange range = [[touchedLink objectForKey:KILabelRangeKey] rangeValue];
+        NSString *touchedSubstring = [touchedLink objectForKey:KILabelLinkKey];
+        KILinkType linkType = (KILinkType)[[touchedLink objectForKey:KILabelLinkTypeKey] intValue];
+        
+        [self receivedActionForLinkType:linkType string:touchedSubstring range:range];
+    }
+    
     self.selectedRange = NSMakeRange(0, 0);
 }
 
