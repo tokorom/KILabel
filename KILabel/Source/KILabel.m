@@ -51,6 +51,8 @@ NSString * const KILabelLinkKey = @"link";
 // During a touch, range of text that is displayed as selected
 @property (nonatomic, assign) NSRange selectedRange;
 
+@property (nonatomic, assign) CGPoint touchLocation;
+
 @end
 
 #pragma mark - Implementation
@@ -637,6 +639,7 @@ NSString * const KILabelLinkKey = @"link";
     // Get the info for the touched link if there is one
     NSDictionary *touchedLink;
     CGPoint touchLocation = [[touches anyObject] locationInView:self];
+    self.touchLocation = touchLocation;
     touchedLink = [self linkAtPoint:touchLocation];
     
     if (touchedLink)
@@ -653,7 +656,14 @@ NSString * const KILabelLinkKey = @"link";
 {
     [super touchesMoved:touches withEvent:event];
     
-    _isTouchMoved = YES;
+    CGPoint currentLocation = [[touches anyObject] locationInView:self];
+    CGFloat xDist = currentLocation.x - self.touchLocation.x;
+    CGFloat yDist = currentLocation.y - self.touchLocation.y;
+    CGFloat distance = sqrt(xDist * xDist + yDist * yDist);
+
+    if (5.0 < distance) {
+        _isTouchMoved = YES;
+    }
 }
 
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
